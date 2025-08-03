@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-calc {
+            transition: all 0.2s ease;
+        }
+        .btn-calc:hover {
+            transform: translateY(-2px);
+        }
+        .btn-calc:active {
+            transform: translateY(0);
+        }
+        .display {
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Layar Kalkulator -->
+            <div class="p-5 bg-gray-800 text-right display">
+                <div class="text-white text-opacity-50 text-xl h-6" id="history"></div>
+                <div class="text-white text-4xl font-semibold truncate" id="output">0</div>
+            </div>
+            
+            <!-- Tombol-tombol -->
+            <div class="grid grid-cols-4 gap-1 p-4 bg-gray-100">
+                <!-- Baris 1 -->
+                <button onclick="clearDisplay()" class="btn-calc col-span-2 bg-red-500 text-white text-xl font-medium py-4 rounded-lg">AC</button>
+                <button onclick="backspace()" class="btn-calc bg-gray-300 text-gray-800 text-xl font-medium py-4 rounded-lg">DEL</button>
+                <button onclick="appendOperator('/')" class="btn-calc bg-yellow-500 text-white text-xl font-medium py-4 rounded-lg">÷</button>
+                
+                <!-- Baris 2 -->
+                <button onclick="appendNumber('7')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">7</button>
+                <button onclick="appendNumber('8')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">8</button>
+                <button onclick="appendNumber('9')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">9</button>
+                <button onclick="appendOperator('*')" class="btn-calc bg-yellow-500 text-white text-xl font-medium py-4 rounded-lg">×</button>
+                
+                <!-- Baris 3 -->
+                <button onclick="appendNumber('4')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">4</button>
+                <button onclick="appendNumber('5')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">5</button>
+                <button onclick="appendNumber('6')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">6</button>
+                <button onclick="appendOperator('-')" class="btn-calc bg-yellow-500 text-white text-xl font-medium py-4 rounded-lg">−</button>
+                
+                <!-- Baris 4 -->
+                <button onclick="appendNumber('1')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">1</button>
+                <button onclick="appendNumber('2')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">2</button>
+                <button onclick="appendNumber('3')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">3</button>
+                <button onclick="appendOperator('+')" class="btn-calc bg-yellow-500 text-white text-xl font-medium py-4 rounded-lg">+</button>
+                
+                <!-- Baris 5 -->
+                <button onclick="appendNumber('0')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300 col-span-2">0</button>
+                <button onclick="appendNumber('.')" class="btn-calc bg-gray-200 text-gray-800 text-xl font-medium py-4 rounded-lg hover:bg-gray-300">.</button>
+                <button onclick="calculate()" class="btn-calc bg-green-500 text-white text-xl font-medium py-4 rounded-lg">=</button>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center text-gray-600 text-sm">
+            Kalkulator Interaktif - Siap membantu perhitungan Anda
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = undefined;
+        let resetScreen = false;
+        
+        const output = document.getElementById('output');
+        const history = document.getElementById('history');
+        
+        function updateDisplay() {
+            output.textContent = currentInput;
+            history.textContent = previousInput + ' ' + (operation || '');
+        }
+        
+        function appendNumber(number) {
+            if (currentInput === '0' || resetScreen) {
+                currentInput = number;
+                resetScreen = false;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+        
+        function appendOperator(op) {
+            if (operation !== undefined) calculate();
+            previousInput = currentInput;
+            operation = op;
+            resetScreen = true;
+            updateDisplay();
+        }
+        
+        function calculate() {
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = result.toString();
+            operation = undefined;
+            previousInput = '';
+            resetScreen = true;
+            updateDisplay();
+        }
+        
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operation = undefined;
+            updateDisplay();
+        }
+        
+        function backspace() {
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            else if (e.key === '.') appendNumber('.');
+            else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') 
+                appendOperator(e.key);
+            else if (e.key === 'Enter' || e.key === '=') calculate();
+            else if (e.key === 'Escape') clearDisplay();
+            else if (e.key === 'Backspace') backspace();
+        });
+    </script>
+</body>
+</html>
+
